@@ -1,0 +1,18 @@
+{
+  "name": "discord-trade-queue-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot to manage trade request queues for a currency game",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["discord", "bot", "supabase", "trade", "queue"],
+  "author": "YourName",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.6",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
+  }
+}
