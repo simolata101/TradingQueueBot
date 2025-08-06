@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Discord bot to manage trade request queues for a currency game",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js"
   },
