@@ -27,9 +27,23 @@ const commands = [
   new SlashCommandBuilder()
     .setName('trade-request')
     .setDescription('Request a trade')
-    .addStringOption(opt => opt.setName('from_currency').setDescription('From currency').setRequired(true))
-    .addStringOption(opt => opt.setName('to_currency').setDescription('To currency').setRequired(true))
-    .addNumberOption(opt => opt.setName('amount').setDescription('Amount').setRequired(true)),
+    .addStringOption(opt => 
+      opt.setName('from_currency')
+        .setDescription('From currency')
+        .setRequired(true)
+        .setAutocomplete(true) // 🔥 Enable autocomplete
+    )
+    .addStringOption(opt => 
+      opt.setName('to_currency')
+        .setDescription('To currency')
+        .setRequired(true)
+        .setAutocomplete(true) // 🔥 Enable autocomplete
+    )
+    .addNumberOption(opt => 
+      opt.setName('amount')
+        .setDescription('Amount')
+        .setRequired(true)
+    ),
 
   new SlashCommandBuilder()
     .setName('my-request')
@@ -73,6 +87,31 @@ const isAdmin = (member) =>
 
 // Slash command handler
 client.on('interactionCreate', async (interaction) => {
+   if (interaction.isAutocomplete()) {
+    const focused = interaction.options.getFocused();
+    const fromCurrency = interaction.options.getString('from_currency');
+    const name = interaction.options.getFocused(true).name;
+
+    const { data: currencies, error } = await supabase.from('Currencies').select('name');
+    if (error || !currencies) return;
+
+    let filtered = currencies.map(c => c.name);
+
+    // If autocompleting 'to_currency', exclude selected from_currency
+    if (name === 'to_currency' && fromCurrency) {
+      filtered = filtered.filter(c => c !== fromCurrency);
+    }
+
+    const choices = filtered
+      .filter(c => c.toLowerCase().startsWith(focused.toLowerCase()))
+      .slice(0, 25) // Discord limit
+      .map(c => ({ name: c, value: c }));
+
+    return interaction.respond(choices);
+  }
+
+  if (!interaction.isChatInputCommand()) return;
+  
   if (!interaction.isChatInputCommand()) return;
 
   const { commandName, options, member, user } = interaction;
@@ -184,3 +223,4 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
