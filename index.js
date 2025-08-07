@@ -157,8 +157,20 @@ client.on('interactionCreate', async (interaction) => {
     const to = options.getString('to_currency').toLowerCase();
     const amount = options.getNumber('amount');
 
-    const existing = await supabase.from('TradeQueue').select().eq('user_id', user.id).eq('status', 'queued');
-    if (existing.data.length) return interaction.reply({ content: 'You already have a pending request.', ephemeral: true });
+    const existing = await supabase
+      .from('TradeQueue')
+      .select()
+      .eq('user_id', user.id)
+      .eq('status', 'queued');
+
+    if (existing.error) {
+      console.error('Error checking existing trade request:', existing.error.message);
+      return interaction.reply({ content: '⚠️ Database error.', ephemeral: true });
+    }
+    
+    if (existing.data?.length) {
+      return interaction.reply({ content: '❗ You already have a pending request.', ephemeral: true });
+    }
 
     const { data: fromCurrency } = await supabase.from('Currencies').select('metric').eq('name', from).single();
     const { data: toCurrency } = await supabase.from('Currencies').select('metric').eq('name', to).single();
@@ -223,4 +235,5 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
 
